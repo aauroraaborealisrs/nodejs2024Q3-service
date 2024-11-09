@@ -40,14 +40,12 @@ export class ArtistService {
     tracks.forEach((track, index) => {
       if (track.artistId === id) {
         tracks[index] = { ...track, artistId: null };
-        console.log(`Updated track: ${track.id}, set artistId to null`);
       }
     });
 
     albums.forEach((album, index) => {
       if (album.artistId === id) {
         albums[index] = { ...album, artistId: null };
-        console.log(`Updated album: ${album.id}, set artistId to null`);
       }
     });
 

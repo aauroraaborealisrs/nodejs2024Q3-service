@@ -41,7 +41,6 @@ export class AlbumService {
     tracks.forEach((track, index) => {
       if (track.albumId === id) {
         tracks[index] = { ...track, albumId: null };
-        console.log(`Updated track: ${track.id}, set albumId to null`);
       }
     });
 
