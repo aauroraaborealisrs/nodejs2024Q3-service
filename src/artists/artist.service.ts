@@ -1,30 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
-import { CreateArtistDto } from './dto/create-artist.dto';
+import { albums, tracks, artists } from '../database';
 import { Artist } from 'src/models/artist.interface';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ArtistService {
-  private artists: Artist[] = [];
-
   getAllArtists(): Artist[] {
-    return this.artists;
+    return artists;
   }
 
   getArtistById(id: string): Artist | undefined {
-    return this.artists.find(artist => artist.id === id);
+    return artists.find((artist) => artist.id === id);
   }
 
-  createArtist(createArtistDto: CreateArtistDto): Artist {
+  createArtist(createArtistDto): Artist {
     const newArtist: Artist = {
       id: uuidv4(),
       ...createArtistDto,
     };
-    this.artists.push(newArtist);
+    artists.push(newArtist);
     return newArtist;
   }
 
-  updateArtist(id: string, updateArtistDto: CreateArtistDto): Artist | null {
+  updateArtist(id: string, updateArtistDto): Artist | null {
     const artist = this.getArtistById(id);
     if (!artist) return null;
 
@@ -34,10 +32,25 @@ export class ArtistService {
   }
 
   deleteArtist(id: string): boolean {
-    const index = this.artists.findIndex(artist => artist.id === id);
+    const index = artists.findIndex((artist) => artist.id === id);
     if (index === -1) return false;
 
-    this.artists.splice(index, 1);
+    artists.splice(index, 1);
+
+    tracks.forEach((track, index) => {
+      if (track.artistId === id) {
+        tracks[index] = { ...track, artistId: null };
+        console.log(`Updated track: ${track.id}, set artistId to null`);
+      }
+    });
+
+    albums.forEach((album, index) => {
+      if (album.artistId === id) {
+        albums[index] = { ...album, artistId: null };
+        console.log(`Updated album: ${album.id}, set artistId to null`);
+      }
+    });
+
     return true;
   }
 }

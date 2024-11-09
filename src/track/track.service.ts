@@ -2,17 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { Track } from 'src/models/track.interface';
+import { tracks } from '../database';
 
 @Injectable()
 export class TrackService {
-  private tracks: Track[] = [];
+  private tracks = tracks;
 
   getAllTracks(): Track[] {
     return this.tracks;
   }
 
   getTrackById(id: string): Track | undefined {
-    return this.tracks.find(track => track.id === id);
+    return this.tracks.find((track) => track.id === id);
   }
 
   createTrack(createTrackDto: CreateTrackDto): Track {
@@ -36,7 +37,7 @@ export class TrackService {
   }
 
   deleteTrack(id: string): boolean {
-    const index = this.tracks.findIndex(track => track.id === id);
+    const index = this.tracks.findIndex((track) => track.id === id);
     if (index === -1) return false;
 
     this.tracks.splice(index, 1);
