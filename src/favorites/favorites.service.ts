@@ -6,9 +6,11 @@ import { validate as isUUID } from 'uuid';
 export class FavoritesService {
   getAllFavorites() {
     return {
-      artists: artists.filter(artist => favorites.artists.includes(artist.id)),
-      albums: albums.filter(album => favorites.albums.includes(album.id)),
-      tracks: tracks.filter(track => favorites.tracks.includes(track.id)),
+      artists: artists.filter((artist) =>
+        favorites.artists.includes(artist.id),
+      ),
+      albums: albums.filter((album) => favorites.albums.includes(album.id)),
+      tracks: tracks.filter((track) => favorites.tracks.includes(track.id)),
     };
   }
 
@@ -17,9 +19,12 @@ export class FavoritesService {
       throw new HttpException('Invalid trackId format', HttpStatus.BAD_REQUEST);
     }
 
-    const track = tracks.find(t => t.id === trackId);
+    const track = tracks.find((t) => t.id === trackId);
     if (!track) {
-      throw new HttpException('Track not found', HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException(
+        'Track not found',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
 
     if (!favorites.tracks.includes(trackId)) {
@@ -36,7 +41,10 @@ export class FavoritesService {
 
     const index = favorites.tracks.indexOf(trackId);
     if (index === -1) {
-      throw new HttpException('Track not found in favorites', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Track not found in favorites',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     favorites.tracks.splice(index, 1);
@@ -47,9 +55,12 @@ export class FavoritesService {
       throw new HttpException('Invalid albumId format', HttpStatus.BAD_REQUEST);
     }
 
-    const album = albums.find(a => a.id === albumId);
+    const album = albums.find((a) => a.id === albumId);
     if (!album) {
-      throw new HttpException('Album not found', HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException(
+        'Album not found',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
 
     if (!favorites.albums.includes(albumId)) {
@@ -66,7 +77,10 @@ export class FavoritesService {
 
     const index = favorites.albums.indexOf(albumId);
     if (index === -1) {
-      throw new HttpException('Album not found in favorites', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Album not found in favorites',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     favorites.albums.splice(index, 1);
@@ -74,12 +88,18 @@ export class FavoritesService {
 
   addArtistToFavorites(artistId: string) {
     if (!isUUID(artistId)) {
-      throw new HttpException('Invalid artistId format', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Invalid artistId format',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    const artist = artists.find(a => a.id === artistId);
+    const artist = artists.find((a) => a.id === artistId);
     if (!artist) {
-      throw new HttpException('Artist not found', HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException(
+        'Artist not found',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
 
     if (!favorites.artists.includes(artistId)) {
@@ -91,12 +111,18 @@ export class FavoritesService {
 
   removeArtistFromFavorites(artistId: string) {
     if (!isUUID(artistId)) {
-      throw new HttpException('Invalid artistId format', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Invalid artistId format',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const index = favorites.artists.indexOf(artistId);
     if (index === -1) {
-      throw new HttpException('Artist not found in favorites', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Artist not found in favorites',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     favorites.artists.splice(index, 1);

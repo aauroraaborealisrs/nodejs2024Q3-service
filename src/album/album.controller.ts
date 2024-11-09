@@ -9,12 +9,15 @@ import {
   HttpException,
   HttpStatus,
   HttpCode,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { validate as isUUID } from 'uuid';
 
 @Controller('album')
+@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 

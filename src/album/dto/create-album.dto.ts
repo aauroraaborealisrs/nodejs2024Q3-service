@@ -7,7 +7,7 @@ export class CreateAlbumDto {
   @IsInt()
   year: number;
 
-  @IsUUID()
+  @IsUUID('4', { message: 'Invalid albumId format' })
   @IsOptional()
   artistId: string | null;
 }

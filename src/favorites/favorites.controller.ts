@@ -5,10 +5,13 @@ import {
   Delete,
   Param,
   HttpCode,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 
 @Controller('favs')
+@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 

@@ -4,11 +4,11 @@ export class CreateTrackDto {
   @IsString()
   name: string;
 
-  @IsUUID()
+  @IsUUID('4', { message: 'Invalid artistId format' })
   @IsOptional()
   artistId: string | null;
 
-  @IsUUID()
+  @IsUUID('4', { message: 'Invalid albumId format' })
   @IsOptional()
   albumId: string | null;
 
