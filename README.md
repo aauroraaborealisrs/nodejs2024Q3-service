@@ -25,6 +25,7 @@ Clone the repository and install the dependencies:
 ```bash
 git clone https://github.com/aauroraaborealisrs/nodejs2024Q3-service.git
 cd nodejs2024Q3-service
+git checkout dev
 npm install
 ```
 
