@@ -31,6 +31,11 @@ services:
       - postgres
     networks:
       - app-network
+    volumes:
+      - ./src:/app/src
+      - ./node_modules:/app/node_modules
+      - ./dist:/app/dist
+    command: npm run start:dev
 
 networks:
   app-network:
