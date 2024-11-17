@@ -1,54 +1,82 @@
-import { Injectable } from '@nestjs/common';
-import { albums, tracks, artists } from '../database';
-import { Artist } from 'src/models/artist.interface';
-import { v4 as uuidv4 } from 'uuid';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateArtistDto } from './dto/create-artist.dto';
 
 @Injectable()
 export class ArtistService {
-  getAllArtists(): Artist[] {
-    return artists;
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getAllArtists() {
+    return this.prisma.artist.findMany({
+      include: {
+        albums: true,
+        tracks: true,
+      },
+    });
   }
 
-  getArtistById(id: string): Artist | undefined {
-    return artists.find((artist) => artist.id === id);
-  }
+  async getArtistById(id: string) {
+    const artist = await this.prisma.artist.findUnique({
+      where: { id },
+      include: {
+        albums: true,
+        tracks: true,
+      },
+    });
 
-  createArtist(createArtistDto): Artist {
-    const newArtist: Artist = {
-      id: uuidv4(),
-      ...createArtistDto,
-    };
-    artists.push(newArtist);
-    return newArtist;
-  }
+    if (!artist) {
+      throw new HttpException('Artist not found', HttpStatus.NOT_FOUND);
+    }
 
-  updateArtist(id: string, updateArtistDto): Artist | null {
-    const artist = this.getArtistById(id);
-    if (!artist) return null;
-
-    artist.name = updateArtistDto.name;
-    artist.grammy = updateArtistDto.grammy;
     return artist;
   }
 
-  deleteArtist(id: string): boolean {
-    const index = artists.findIndex((artist) => artist.id === id);
-    if (index === -1) return false;
+  async createArtist(createArtistDto: CreateArtistDto) {
+    const newArtist = await this.prisma.artist.create({
+      data: {
+        name: createArtistDto.name,
+        grammy: createArtistDto.grammy,
+      },
+    });
+    return newArtist;
+  }
 
-    artists.splice(index, 1);
+  async updateArtist(id: string, updateArtistDto: CreateArtistDto) {
+    const artist = await this.prisma.artist.findUnique({ where: { id } });
 
-    tracks.forEach((track, index) => {
-      if (track.artistId === id) {
-        tracks[index] = { ...track, artistId: null };
-      }
+    if (!artist) {
+      throw new HttpException('Artist not found', HttpStatus.NOT_FOUND);
+    }
+
+    const updatedArtist = await this.prisma.artist.update({
+      where: { id },
+      data: {
+        name: updateArtistDto.name,
+        grammy: updateArtistDto.grammy,
+      },
     });
 
-    albums.forEach((album, index) => {
-      if (album.artistId === id) {
-        albums[index] = { ...album, artistId: null };
-      }
+    return updatedArtist;
+  }
+
+  async deleteArtist(id: string) {
+    const artist = await this.prisma.artist.findUnique({ where: { id } });
+
+    if (!artist) {
+      throw new HttpException('Artist not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.prisma.track.updateMany({
+      where: { artistId: id },
+      data: { artistId: null },
     });
 
+    await this.prisma.album.updateMany({
+      where: { artistId: id },
+      data: { artistId: null },
+    });
+
+    await this.prisma.artist.delete({ where: { id } });
     return true;
   }
 }
