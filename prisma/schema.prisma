@@ -42,6 +42,7 @@ model Album {
 model Track {
   id        String   @id @default(uuid())
   title     String
+  duration  Int
   albumId   String?
   artistId  String?
   createdAt DateTime @default(now())
