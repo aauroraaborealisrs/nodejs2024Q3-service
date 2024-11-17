@@ -18,4 +18,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       console.error('Error cleaning database:', error);
     }
   }
+
+  async onModuleDestroy() {
+    await this.$disconnect();
+  }
 }

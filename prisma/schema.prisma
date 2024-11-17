@@ -17,34 +17,39 @@ model User {
   favorites Favorites?
 }
 
-model Track {
-  id        String      @id @default(uuid())
-  name      String
-  artistId  String?     @unique
-  albumId   String?     @unique
-  duration  Int
-  album     Album?      @relation(fields: [albumId], references: [id])
-  artist    Artist?     @relation(fields: [artistId], references: [id])
-  favorites Favorites[] @relation("FavoritesToTrack")
-}
-
 model Artist {
   id        String      @id @default(uuid())
   name      String
   grammy    Boolean
-  albums    Album?
-  tracks    Track?
+  albums    Album[]     @relation("ArtistToAlbum")
+  tracks    Track[]     @relation("ArtistToTrack")
   favorites Favorites[] @relation("ArtistToFavorites")
 }
 
 model Album {
-  id        String      @id @default(uuid())
-  name      String      @unique
+  id        String   @id @default(uuid())
+  name      String
   year      Int
-  artistId  String?     @unique
-  artist    Artist?     @relation(fields: [artistId], references: [id])
-  tracks    Track?
+  artistId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  artist    Artist?     @relation("ArtistToAlbum", fields: [artistId], references: [id])
+  tracks    Track[]     @relation("AlbumToTrack")
   favorites Favorites[] @relation("AlbumToFavorites")
+}
+
+model Track {
+  id        String   @id @default(uuid())
+  title     String
+  albumId   String?
+  artistId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  album     Album?      @relation("AlbumToTrack", fields: [albumId], references: [id])
+  artist    Artist?     @relation("ArtistToTrack", fields: [artistId], references: [id])
+  favorites Favorites[] @relation("FavoritesToTrack")
 }
 
 model Favorites {
