@@ -1,0 +1,12 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: nestjs_app_c 
+
+    ports:
+        - ${PORT}:${PORT}
+    volumes:
+      - ./src:/app/src
+      - /app/node_modules
+    command: npm run start:dev
