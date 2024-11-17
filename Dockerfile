@@ -19,7 +19,7 @@ FROM node:20-slim
 
 WORKDIR /app
 
-ENV NODE_ENV=production
+ARG NODE_ENV=development
 
 RUN apt-get update && apt-get install -y procps
 

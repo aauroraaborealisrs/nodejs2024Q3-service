@@ -7,28 +7,37 @@ services:
       dockerfile: Dockerfile.postgres
     container_name: postgres_db
     environment:
-      POSTGRES_DB: home_library
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PG_PORT: ${PG_PORT}
     ports:
-      - "5433:5432"
+      - "${PG_PORT_D}:${PG_PORT}"
     networks:
       - app-network
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - postgres_logs:/var/log/postgresql
     restart: always
-
 
   nestjs-app:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV}
     container_name: nestjs_app
     ports:
-      - "4000:4000"
+      - "${PORT}:${PORT}"
     environment:
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/home_library"
-      PORT: 4000
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: ${PORT}
+      PG_PORT: ${PG_PORT}
+      PG_PORT_D: ${PG_PORT_D}
+      NODE_ENV: ${NODE_ENV}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
       - postgres
     networks:
