@@ -1,33 +1,51 @@
-version: '3.8'
-
 services:
   app:
     build: .
-    restart: always
-    env_file:
-      - .env
+    image: nestjs-typeorm-app
+    container_name: nestjs_typeorm_dev
+    ports:
+      - "4000:4000"
     volumes:
       - ./src:/usr/src/app/src
-    networks:
-      - app_network
+      - /usr/src/app/node_modules
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1
+      POSTGRES_DB: library
     depends_on:
       - database
+    networks:
+      - app_network
+    entrypoint: ["sh", "-c", "npm run build && npm run migration:run && npm run start:dev"]
+    restart: on-failure
 
   database:
     image: postgres:15-alpine
-    restart: always
-    env_file:
-      - .env
+    container_name: postgres_dev
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1
+      POSTGRES_DB: library
+    ports:
+      - "5433:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-      - db_logs:/var/log/postgresql
     networks:
       - app_network
+    restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   app_network:
-    external: true
+    driver: bridge
 
 volumes:
   db_data:
-  db_logs:
