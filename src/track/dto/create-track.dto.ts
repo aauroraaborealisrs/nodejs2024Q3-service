@@ -16,7 +16,7 @@ export class CreateTrackDto {
   })
   @IsUUID('4', { message: 'Invalid artistId format' })
   @IsOptional()
-  artistId: string | null;
+  artistId: string;
 
   @ApiProperty({
     description: 'UUID of the album (optional)',
@@ -25,7 +25,7 @@ export class CreateTrackDto {
   })
   @IsUUID('4', { message: 'Invalid albumId format' })
   @IsOptional()
-  albumId: string | null;
+  albumId: string;
 
   @ApiProperty({
     description: 'Duration of the track in seconds',

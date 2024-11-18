@@ -23,5 +23,5 @@ export class CreateAlbumDto {
   })
   @IsUUID('4', { message: 'Invalid artistId format' })
   @IsOptional()
-  artistId: string | null;
+  artistId: string;
 }

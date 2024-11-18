@@ -1,46 +1,51 @@
-import { Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
-import { CreateTrackDto } from './dto/create-track.dto';
-import { Track } from 'src/models/track.interface';
-import { tracks } from '../database';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Track } from 'src/db/entities';
+import { CreateTrackDto } from 'src/track/dto';
 
 @Injectable()
 export class TrackService {
-  private tracks = tracks;
-
-  getAllTracks(): Track[] {
-    return this.tracks;
+  public async getAllTracks(): Promise<Track[]> {
+    return Track.find({
+      relations: {
+        album: true,
+        artist: true,
+      },
+    });
   }
 
-  getTrackById(id: string): Track | undefined {
-    return this.tracks.find((track) => track.id === id);
-  }
+  public async getTrackById(id: string): Promise<Track> {
+    const track = await Track.findOne({
+      where: { id },
+      relations: {
+        album: true,
+        artist: true,
+      },
+    });
 
-  createTrack(createTrackDto: CreateTrackDto): Track {
-    const newTrack: Track = {
-      id: uuidv4(),
-      ...createTrackDto,
-    };
-    this.tracks.push(newTrack);
-    return newTrack;
-  }
+    if (!track) {
+      throw new NotFoundException('Track not found');
+    }
 
-  updateTrack(id: string, updateTrackDto: CreateTrackDto): Track | null {
-    const track = this.getTrackById(id);
-    if (!track) return null;
-
-    track.name = updateTrackDto.name;
-    track.artistId = updateTrackDto.artistId;
-    track.albumId = updateTrackDto.albumId;
-    track.duration = updateTrackDto.duration;
     return track;
   }
 
-  deleteTrack(id: string): boolean {
-    const index = this.tracks.findIndex((track) => track.id === id);
-    if (index === -1) return false;
+  public async createTrack(dto: CreateTrackDto): Promise<Track> {
+    return Track.save({ ...dto });
+  }
 
-    this.tracks.splice(index, 1);
+  public async updateTrack(id: string, dto: CreateTrackDto): Promise<Track> {
+    const track = await this.getTrackById(id);
+
+    Object.assign(track, { ...dto });
+
+    return Track.save(track);
+  }
+
+  public async deleteTrack(id: string): Promise<boolean> {
+    const track = await this.getTrackById(id);
+
+    await Track.delete({ id: track.id });
+
     return true;
   }
 }

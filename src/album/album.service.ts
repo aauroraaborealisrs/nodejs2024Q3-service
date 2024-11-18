@@ -1,53 +1,40 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { CreateAlbumDto } from './dto/create-album.dto';
-import { Album } from '@prisma/client';
-import { PrismaService } from 'src/prisma.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateAlbumDto } from 'src/album/dto';
+import { Album } from 'src/db/entities';
 
 @Injectable()
 export class AlbumService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async getAllAlbums(): Promise<Album[]> {
-    return this.prisma.album.findMany();
+  public async getAllAlbums(): Promise<Album[]> {
+    return Album.find();
   }
 
-  async getAlbumById(id: string): Promise<Album | null> {
-    const album = await this.prisma.album.findUnique({ where: { id } });
+  public async getAlbumById(id: string): Promise<Album> {
+    const album = await Album.findOneBy({ id });
+
     if (!album) {
-      throw new HttpException('Album not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Album not found');
     }
+
     return album;
   }
 
-  async createAlbum(createAlbumDto: CreateAlbumDto): Promise<Album> {
-    return this.prisma.album.create({
-      data: createAlbumDto,
-    });
+  public async createAlbum(dto: CreateAlbumDto): Promise<Album> {
+    return Album.save({ ...dto });
   }
 
-  async updateAlbum(id: string, updateAlbumDto: CreateAlbumDto): Promise<Album> {
-    const album = await this.prisma.album.findUnique({ where: { id } });
-    if (!album) {
-      throw new HttpException('Album not found', HttpStatus.NOT_FOUND);
-    }
+  public async updateAlbum(id: string, dto: CreateAlbumDto): Promise<Album> {
+    const album = await this.getAlbumById(id);
 
-    return this.prisma.album.update({
-      where: { id },
-      data: updateAlbumDto,
-    });
+    Object.assign(album, dto);
+
+    return Album.save(album);
   }
 
-  async deleteAlbum(id: string): Promise<void> {
-    const album = await this.prisma.album.findUnique({ where: { id } });
-    if (!album) {
-      throw new HttpException('Album not found', HttpStatus.NOT_FOUND);
-    }
+  public async deleteAlbum(id: string): Promise<boolean> {
+    const album = await this.getAlbumById(id);
 
-    await this.prisma.track.updateMany({
-      where: { albumId: id },
-      data: { albumId: null },
-    });
+    await Album.delete({ id: album.id });
 
-    await this.prisma.album.delete({ where: { id } });
+    return true;
   }
 }

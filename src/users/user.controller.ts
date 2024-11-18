@@ -1,78 +1,65 @@
 import {
-  Body,
   Controller,
-  Delete,
-  ForbiddenException,
   Get,
-  HttpCode,
-  NotFoundException,
-  Param,
-  ParseUUIDPipe,
   Post,
   Put,
+  Delete,
+  Param,
+  Body,
+  HttpCode,
+  ValidationPipe,
+  UsePipes,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { IUser } from './interfaces/user.interface';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdatePasswordDto } from './dto/update-password.dto';
+import { validate as isUUID } from 'uuid';
+import { CreateUserDto, UpdatePasswordDto } from 'src/users/dto';
 
 @Controller('user')
+@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
   @Get()
-  async getAllUsers(): Promise<IUser[]> {
-    return await this.userService.getAllUsers();
+  public async getAllUsers() {
+    return this.userService.getAllUsers();
   }
 
   @Get(':id')
-  async getUserById(@Param('id', ParseUUIDPipe) id: string): Promise<IUser> {
-    const user = await this.userService.getUserById(id);
+  public async getUserById(@Param('id') id: string) {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Invalid userId format');
+    }
 
-    return user;
+    return this.userService.getUserById(id);
   }
 
   @Post()
-  async addUser(@Body() createUserDto: CreateUserDto): Promise<IUser> {
-    const userResponseData = await this.userService.addUser(createUserDto);
-    return userResponseData;
+  @HttpCode(201)
+  public async createUser(@Body() dto: CreateUserDto) {
+    return this.userService.createUser(dto);
   }
 
   @Put(':id')
-  async updateUserPassword(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updatePasswordDto: UpdatePasswordDto,
+  @HttpCode(200)
+  public async updateUserPassword(
+    @Param('id') id: string,
+    @Body() dto: UpdatePasswordDto,
   ) {
-    const user = await this.userService.getUserById(id);
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+    if (!isUUID(id)) {
+      throw new BadRequestException('Invalid userId format');
     }
 
-    if (updatePasswordDto.oldPassword !== user.password) {
-      throw new ForbiddenException('Incorrect old password');
-    }
-
-    return await this.userService.updateUserPassword(
-      id,
-      updatePasswordDto.newPassword,
-    );
+    return this.userService.updateUserPassword(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteUser(@Param('id', ParseUUIDPipe) id: string) {
-    const user = await this.userService.getUserById(id);
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+  public async deleteUser(@Param('id') id: string) {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Invalid userId format');
     }
 
-    await this.userService.deleteUser(id);
-  }
-
-  @Delete('deleteAll')
-  async deleteAllUsers(): Promise<void> {
-    await this.userService.deleteAllUsers();
+    return this.userService.deleteUser(id);
   }
 }

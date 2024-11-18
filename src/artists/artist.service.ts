@@ -1,58 +1,57 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { CreateArtistDto } from './dto/create-artist.dto';
-import { Artist } from '@prisma/client';
-import { PrismaService } from 'src/prisma.service';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateArtistDto } from 'src/artists/dto';
+import { Artist } from 'src/db/entities';
 
 @Injectable()
 export class ArtistService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async getAllArtists(): Promise<Artist[]> {
-    return this.prisma.artist.findMany();
+  public async getAllArtists(): Promise<Artist[]> {
+    return Artist.find();
   }
 
-  async getArtistById(id: string): Promise<Artist | null> {
-    const artist = await this.prisma.artist.findUnique({ where: { id } });
+  public async getArtistById(id: string): Promise<Artist> {
+    const artist = await Artist.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        albums: true,
+        tracks: true,
+      },
+    });
+
     if (!artist) {
-      throw new HttpException('Artist not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Artist not found');
     }
+
     return artist;
   }
 
-  async createArtist(createArtistDto: CreateArtistDto): Promise<Artist> {
-    return this.prisma.artist.create({
-      data: createArtistDto,
-    });
+  public async createArtist(dto: CreateArtistDto): Promise<Artist> {
+    return Artist.save({ ...dto });
   }
 
-  async updateArtist(id: string, updateArtistDto: CreateArtistDto): Promise<Artist> {
-    const artist = await this.prisma.artist.findUnique({ where: { id } });
-    if (!artist) {
-      throw new HttpException('Artist not found', HttpStatus.NOT_FOUND);
-    }
+  public async updateArtist(id: string, dto: CreateArtistDto): Promise<Artist> {
+    const artist = await this.getArtistById(id);
 
-    return this.prisma.artist.update({
-      where: { id },
-      data: updateArtistDto,
-    });
+    Object.assign(artist, dto);
+
+    return Artist.save(artist);
   }
 
-  async deleteArtist(id: string): Promise<void> {
-    const artist = await this.prisma.artist.findUnique({ where: { id } });
-    if (!artist) {
-      throw new HttpException('Artist not found', HttpStatus.NOT_FOUND);
-    }
+  public async deleteArtist(id: string): Promise<boolean> {
+    const artist = await this.getArtistById(id);
 
-    await this.prisma.track.updateMany({
-      where: { artistId: id },
-      data: { artistId: null },
-    });
+    await Promise.all([
+      artist.albums.forEach(async (album) => (album.artistId = null) && await album.save()),
+      artist.tracks.forEach(async (track) => (track.artistId = null) && await track.save()),
+    ]);
 
-    await this.prisma.album.updateMany({
-      where: { artistId: id },
-      data: { artistId: null },
-    });
+    await artist.remove();
 
-    await this.prisma.artist.delete({ where: { id } });
+    return true;
   }
 }

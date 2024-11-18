@@ -22,57 +22,45 @@ export class TrackController {
   constructor(private readonly trackService: TrackService) {}
 
   @Get()
-  getAllTracks() {
+  public async getAllTracks() {
     return this.trackService.getAllTracks();
   }
 
   @Get(':id')
-  getTrackById(@Param('id') id: string) {
+  public async getTrackById(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new HttpException('Invalid trackId format', HttpStatus.BAD_REQUEST);
     }
 
-    const track = this.trackService.getTrackById(id);
-    if (!track) {
-      throw new HttpException('Track not found', HttpStatus.NOT_FOUND);
-    }
-
-    return track;
+    return this.trackService.getTrackById(id);
   }
 
   @Post()
   @HttpCode(201)
-  createTrack(@Body() createTrackDto: CreateTrackDto) {
+  public async createTrack(@Body() createTrackDto: CreateTrackDto) {
     return this.trackService.createTrack(createTrackDto);
   }
 
   @Put(':id')
   @HttpCode(200)
-  updateTrack(@Param('id') id: string, @Body() updateTrackDto: CreateTrackDto) {
+  public async updateTrack(
+    @Param('id') id: string,
+    @Body() updateTrackDto: CreateTrackDto,
+  ) {
     if (!isUUID(id)) {
       throw new HttpException('Invalid trackId format', HttpStatus.BAD_REQUEST);
     }
 
-    const updatedTrack = this.trackService.updateTrack(id, updateTrackDto);
-    if (!updatedTrack) {
-      throw new HttpException('Track not found', HttpStatus.NOT_FOUND);
-    }
-
-    return updatedTrack;
+    return this.trackService.updateTrack(id, updateTrackDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  deleteTrack(@Param('id') id: string) {
+  public async deleteTrack(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new HttpException('Invalid trackId format', HttpStatus.BAD_REQUEST);
     }
 
-    const isDeleted = this.trackService.deleteTrack(id);
-    if (!isDeleted) {
-      throw new HttpException('Track not found', HttpStatus.NOT_FOUND);
-    }
-
-    return;
+    await this.trackService.deleteTrack(id);
   }
 }

@@ -4,18 +4,22 @@ import { ArtistModule } from './artists/artist.module';
 import { TrackModule } from './track/track.module';
 import { AlbumModule } from './album/album.module';
 import { FavoritesModule } from './favorites/favorites.module';
-import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from './prisma.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { dbConfig } from 'src/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true, load: [dbConfig] }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => configService.get('db'),
+    }),
     UserModule,
-    TrackModule,
     ArtistModule,
+    TrackModule,
     AlbumModule,
     FavoritesModule,
-    PrismaModule
   ],
 })
 export class AppModule {}

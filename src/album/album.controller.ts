@@ -11,6 +11,7 @@ import {
   HttpCode,
   UsePipes,
   ValidationPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
@@ -22,42 +23,50 @@ export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
   @Get()
-  async getAllAlbums() {
-    return await this.albumService.getAllAlbums();
+  public async getAllAlbums() {
+    return this.albumService.getAllAlbums();
   }
 
   @Get(':id')
-  async getAlbumById(@Param('id') id: string) {
+  public async getAlbumById(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new HttpException('Invalid albumId format', HttpStatus.BAD_REQUEST);
     }
 
-    return await this.albumService.getAlbumById(id);
+    const album = this.albumService.getAlbumById(id);
+    if (!album) {
+      throw new NotFoundException('Album not found');
+    }
+
+    return album;
   }
 
   @Post()
   @HttpCode(201)
-  async createAlbum(@Body() createAlbumDto: CreateAlbumDto) {
-    return await this.albumService.createAlbum(createAlbumDto);
+  public async createAlbum(@Body() createAlbumDto: CreateAlbumDto) {
+    return this.albumService.createAlbum(createAlbumDto);
   }
 
   @Put(':id')
   @HttpCode(200)
-  async updateAlbum(@Param('id') id: string, @Body() updateAlbumDto: CreateAlbumDto) {
+  public async updateAlbum(
+    @Param('id') id: string,
+    @Body() updateAlbumDto: CreateAlbumDto,
+  ) {
     if (!isUUID(id)) {
       throw new HttpException('Invalid albumId format', HttpStatus.BAD_REQUEST);
     }
 
-    return await this.albumService.updateAlbum(id, updateAlbumDto);
+    return this.albumService.updateAlbum(id, updateAlbumDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteAlbum(@Param('id') id: string) {
+  public async deleteAlbum(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new HttpException('Invalid albumId format', HttpStatus.BAD_REQUEST);
     }
 
-    await this.albumService.deleteAlbum(id);
+    return this.albumService.deleteAlbum(id);
   }
 }
