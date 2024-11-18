@@ -7,14 +7,15 @@ RUN npm install
 
 COPY . .
 
+RUN rm -rf /tmp/*
+
 FROM node:22-alpine
 
 WORKDIR /app
 
-COPY --from=build /app ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app .
 
-RUN npm install
-
-EXPOSE ${PORT}
+EXPOSE 4000
 
 CMD ["npm", "run", "start:dev"]

@@ -1,7 +1,8 @@
 services:
   app:
-    build: .
-    image: nestjs-typeorm-app
+    build:
+      context: .
+    image: aauroraaborealisrs/nest-api:latest
     container_name: nestjs_typeorm_dev
     ports:
       - ${PORT}:${PORT}
