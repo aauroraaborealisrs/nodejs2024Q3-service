@@ -42,6 +42,21 @@ http://localhost:4000/doc/
 
 You can run the application using Docker Compose for an easy setup of both the service and the database.
 
+### Important Notes for Running with Docker
+
+1. **Ensure the PostgreSQL port is not occupied**:
+   - Check if the port `5432` (or the one specified in your `.env` file) is already in use. Use the following command to check:
+
+     ```bash
+     netstat -ano | findstr :5432
+     ```
+
+   - If the port is occupied, stop the service using it or update the `.env` file and `docker-compose.yml` to use a different port (e.g., `5433`).
+
+2. **Start Docker Desktop**:
+   - Make sure Docker is installed and running on your computer. If Docker is not started, the services will fail to run. Open Docker Desktop and confirm it is running before executing `docker-compose` commands.
+
+
 ### Step 1: Build and Run with Docker Compose
 
 Ensure Docker is installed and running, then execute:
