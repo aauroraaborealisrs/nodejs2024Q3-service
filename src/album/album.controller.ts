@@ -22,57 +22,42 @@ export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
   @Get()
-  getAllAlbums() {
-    return this.albumService.getAllAlbums();
+  async getAllAlbums() {
+    return await this.albumService.getAllAlbums();
   }
 
   @Get(':id')
-  getAlbumById(@Param('id') id: string) {
+  async getAlbumById(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new HttpException('Invalid albumId format', HttpStatus.BAD_REQUEST);
     }
 
-    const album = this.albumService.getAlbumById(id);
-    if (!album) {
-      throw new HttpException('Album not found', HttpStatus.NOT_FOUND);
-    }
-
-    return album;
+    return await this.albumService.getAlbumById(id);
   }
 
   @Post()
   @HttpCode(201)
-  createAlbum(@Body() createAlbumDto: CreateAlbumDto) {
-    return this.albumService.createAlbum(createAlbumDto);
+  async createAlbum(@Body() createAlbumDto: CreateAlbumDto) {
+    return await this.albumService.createAlbum(createAlbumDto);
   }
 
   @Put(':id')
   @HttpCode(200)
-  updateAlbum(@Param('id') id: string, @Body() updateAlbumDto: CreateAlbumDto) {
+  async updateAlbum(@Param('id') id: string, @Body() updateAlbumDto: CreateAlbumDto) {
     if (!isUUID(id)) {
       throw new HttpException('Invalid albumId format', HttpStatus.BAD_REQUEST);
     }
 
-    const updatedAlbum = this.albumService.updateAlbum(id, updateAlbumDto);
-    if (!updatedAlbum) {
-      throw new HttpException('Album not found', HttpStatus.NOT_FOUND);
-    }
-
-    return updatedAlbum;
+    return await this.albumService.updateAlbum(id, updateAlbumDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  deleteAlbum(@Param('id') id: string) {
+  async deleteAlbum(@Param('id') id: string) {
     if (!isUUID(id)) {
       throw new HttpException('Invalid albumId format', HttpStatus.BAD_REQUEST);
     }
 
-    const isDeleted = this.albumService.deleteAlbum(id);
-    if (!isDeleted) {
-      throw new HttpException('Album not found', HttpStatus.NOT_FOUND);
-    }
-
-    return;
+    await this.albumService.deleteAlbum(id);
   }
 }

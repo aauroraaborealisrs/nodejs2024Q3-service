@@ -16,43 +16,43 @@ export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Get()
-  getAllFavorites() {
-    return this.favoritesService.getAllFavorites();
+  async getAllFavorites() {
+    return await this.favoritesService.getAllFavorites();
   }
 
   @Post('track/:id')
   @HttpCode(201)
-  addTrackToFavorites(@Param('id') id: string) {
-    return this.favoritesService.addTrackToFavorites(id);
+  async addTrackToFavorites(@Param('id') id: string) {
+    return await this.favoritesService.addTrackToFavorites(id);
   }
 
   @Delete('track/:id')
   @HttpCode(204)
-  removeTrackFromFavorites(@Param('id') id: string) {
-    this.favoritesService.removeTrackFromFavorites(id);
+  async removeTrackFromFavorites(@Param('id') id: string) {
+    await this.favoritesService.removeTrackFromFavorites(id);
   }
 
   @Post('album/:id')
   @HttpCode(201)
-  addAlbumToFavorites(@Param('id') id: string) {
-    return this.favoritesService.addAlbumToFavorites(id);
+  async addAlbumToFavorites(@Param('id') id: string) {
+    return await this.favoritesService.addAlbumToFavorites(id);
   }
 
   @Delete('album/:id')
   @HttpCode(204)
-  removeAlbumFromFavorites(@Param('id') id: string) {
-    this.favoritesService.removeAlbumFromFavorites(id);
+  async removeAlbumFromFavorites(@Param('id') id: string) {
+    await this.favoritesService.removeAlbumFromFavorites(id);
   }
 
   @Post('artist/:id')
   @HttpCode(201)
-  addArtistToFavorites(@Param('id') id: string) {
-    return this.favoritesService.addArtistToFavorites(id);
+  async addArtistToFavorites(@Param('id') id: string) {
+    return await this.favoritesService.addArtistToFavorites(id);
   }
 
   @Delete('artist/:id')
   @HttpCode(204)
-  removeArtistFromFavorites(@Param('id') id: string) {
-    this.favoritesService.removeArtistFromFavorites(id);
+  async removeArtistFromFavorites(@Param('id') id: string) {
+    await this.favoritesService.removeArtistFromFavorites(id);
   }
 }

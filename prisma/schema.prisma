@@ -23,8 +23,8 @@ model Track {
   albumId  String?   @unique
   duration Int
   favTrack FavTrack?
-  album    Album?    @relation(fields: [albumId], references: [id])
-  artist   Artist?   @relation(fields: [artistId], references: [id])
+  album    Album?    @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  artist   Artist?   @relation(fields: [artistId], references: [id], onDelete: SetNull)
 }
 
 model Artist {
@@ -41,7 +41,7 @@ model Album {
   name     String
   year     Int
   artistId String?   @unique
-  artist   Artist?   @relation(fields: [artistId], references: [id])
+  artist   Artist?   @relation(fields: [artistId], references: [id], onDelete: SetNull)
   favAlbum FavAlbum?
   tracks   Track?
 }
